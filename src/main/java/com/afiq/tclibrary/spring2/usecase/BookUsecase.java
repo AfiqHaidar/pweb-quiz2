@@ -23,6 +23,14 @@ public class BookUsecase {
     @Autowired
     GenreUsecase genreUsecase;
 
+    public int update(Book book) {
+        return bookRepository.update(book);
+    }
+
+    public Book findById(int id) {
+        return bookRepository.findById(id);
+    }
+
     public List<Book> findAllBooks () throws Exception {
 
         List<Genre> genres = genreUsecase.findAllGenres();
@@ -39,7 +47,13 @@ public class BookUsecase {
     }
 
     public List<Book> findAllBooksPagination (int offset, int limit) throws Exception {
-        List<Book> books = bookRepository.findAllPagination(offset, limit);
+        List<Book> books = new ArrayList<Book>();
+        List<Genre> genres = genreUsecase.findAllGenres();
+
+        for (Book book : bookRepository.findAllPagination(offset, limit)) {
+            book.setGenreName(getGenreByIdFromList(genres, book.getGenreId()));
+            books.add(book);
+        }
 
         return books;
     }

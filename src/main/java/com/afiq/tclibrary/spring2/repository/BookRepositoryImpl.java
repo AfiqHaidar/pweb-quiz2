@@ -16,23 +16,36 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public int save(Book book) {
-        return jdbcTemplate.update("insert into public.books(title, description, genre_id) values (?,?,?)",
+        return jdbcTemplate.update("insert into library.books(title, description, genre_id) values (?,?,?)",
                 new Object[] {book.getTitle(), book.getDescription(), book.getGenreId()});
     }
 
     @Override
+    public Book findById(int id) {
+        String query = "select * from library.books where id=" + id;
+        return jdbcTemplate.queryForObject(query, BeanPropertyRowMapper.newInstance(Book.class));
+    }
+
+
+    @Override
+    public int update(Book book) {
+        return jdbcTemplate.update("update library.books set title=?, description=?, genre_id=? where id=?",
+                new Object[] {book.getTitle(), book.getDescription(), book.getGenreId(), book.getGenreId()});
+    }
+
+    @Override
     public List<Book> findAll() {
-        return jdbcTemplate.query("select * from public.books", BeanPropertyRowMapper.newInstance(Book.class));
+        return jdbcTemplate.query("select * from library.books", BeanPropertyRowMapper.newInstance(Book.class));
     }
 
     @Override
     public List<Book> findAllPagination(int offset, int limit) {
-        String query = "select * from public.books limit " + limit + " offset " + offset;
+        String query = "select * from library.books order by id asc limit " + limit + " offset " + offset;
         return jdbcTemplate.query(query, BeanPropertyRowMapper.newInstance(Book.class));
     }
 
     @Override
     public int deleteById(Long id) {
-        return jdbcTemplate.update("delete from public.books where id=?", id);
+        return jdbcTemplate.update("delete from library.books where id=?", id);
     }
 }

@@ -43,7 +43,7 @@ public class Controller {
         return "hello";
     }
 
-    @GetMapping({"genres"})
+    @GetMapping({"genres", "library/genres"})
     public String genreList(Model model) throws Exception {
 
         List<Genre> llist = genreUsecase.findAllGenres();
@@ -51,13 +51,13 @@ public class Controller {
         return "genre-list";
     }
 
-    @GetMapping({"addgenre"})
+    @GetMapping({"addgenre", "library/addgenre"})
     public String addGenreView(Model model) throws Exception {
         model.addAttribute("genre", new Genre());
         return "genre-add";
     }
 
-    @PostMapping({"addgenrepost"})
+    @PostMapping({"addgenrepost", "library/addgenrepost"})
     public RedirectView addGenre(@ModelAttribute("genre") Genre genre,
                                 RedirectAttributes redirectAttributes) {
         final RedirectView redirectView = new RedirectView("/addgenre", true);
@@ -66,7 +66,7 @@ public class Controller {
         return redirectView;
     }
 
-    @GetMapping({"deletegenre"})
+    @GetMapping({"deletegenre", "library/deletegenre"})
     public RedirectView deleteGenre(@RequestParam(value="id", required = true) Long id,
                                    RedirectAttributes redirectAttributes) {
         final RedirectView redirectView = new RedirectView("/genres", true);
@@ -78,7 +78,7 @@ public class Controller {
         return redirectView;
     }
 
-    @GetMapping({"list"})
+    @GetMapping({"list", "library/list"})
     public String helloList(Model model) throws Exception {
 
         List<Book> llist = bookUsecase.findAllBooks();
@@ -86,10 +86,10 @@ public class Controller {
         return "book-list";
     }
 
-    @GetMapping({"books"})
+    @GetMapping({"books", "library/books"})
     public String bookList(Model model,
                            @RequestParam(value="offset", required = false, defaultValue = "0") int offset,
-                           @RequestParam(value="limit", required = false, defaultValue = "2") int limit,
+                           @RequestParam(value="limit", required = false, defaultValue = "10") int limit,
                            @RequestParam(value="currentPage", required = false, defaultValue = "0") int currentPage) throws Exception {
 
         int count = (int) bookUsecase.findAllBooks().stream().count();
@@ -98,27 +98,20 @@ public class Controller {
                 limit,
                 currentPage);
 
-        logger.warn("=========================");
-        logger.warn("total items" + count);
-        logger.warn(pagination.getTotalPages() + "");
-        logger.warn(pagination.getPageNumbers() + "");
-        logger.warn(pagination.getCurrentPage() + "");
-        logger.warn("=========================");
-
         List<Book> llist = bookUsecase.findAllBooksPagination(offset, limit);
         model.addAttribute("books", llist);
         model.addAttribute("pagination", pagination);
         return "book-list-pagination";
     }
 
-    @GetMapping({"addbook"})
+    @GetMapping({"addbook", "library/addbook"})
     public String addBookView(Model model) throws Exception {
         model.addAttribute("book", new Book());
         model.addAttribute("genres", genreUsecase.findAllGenres());
         return "book-add";
     }
 
-    @PostMapping({"addbookpost"})
+    @PostMapping({"addbookpost", "library/addbookpost"})
     public RedirectView addBook(@ModelAttribute("book") Book book,
                                 RedirectAttributes redirectAttributes) {
         final RedirectView redirectView = new RedirectView("/addbook", true);
@@ -132,10 +125,30 @@ public class Controller {
         return redirectView;
     }
 
-    @GetMapping({"deletebook"})
+    @GetMapping({"updatebook", "library/updatebook"})
+    public String updateBookView(Model model,
+                                 @RequestParam(value="id", required = true, defaultValue = "0") int id) throws Exception {
+
+        Book book = bookUsecase.findById(id);
+
+        model.addAttribute("book", book);
+        model.addAttribute("genres", genreUsecase.findAllGenres());
+        return "book-update";
+    }
+
+    @PostMapping({"updatebookpost", "library/updatebookpost"})
+    public RedirectView updateBook(@ModelAttribute("book") Book book,
+                                RedirectAttributes redirectAttributes) {
+        final RedirectView redirectView = new RedirectView("/books", true);
+        int savedBook = bookRepository.update(book);
+        redirectAttributes.addFlashAttribute("updateBookSuccess", true);
+        return redirectView;
+    }
+
+    @GetMapping({"deletebook", "library/deletebook"})
     public RedirectView deleteBook(@RequestParam(value="id", required = true) Long id,
                                 RedirectAttributes redirectAttributes) {
-        final RedirectView redirectView = new RedirectView("/list", true);
+        final RedirectView redirectView = new RedirectView("/books", true);
 
         int savedBook = bookRepository.deleteById(id);
 
@@ -147,7 +160,7 @@ public class Controller {
     @GetMapping("findall")
     public ResponseEntity<List<Book>> findALl() {
         try {
-            List<Book> books = bookUsecase.findAllBooksPagination(2, 2);
+            List<Book> books = bookUsecase.findAllBooksPagination(10, 2);
 
             if (books.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);

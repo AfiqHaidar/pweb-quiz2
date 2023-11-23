@@ -10,7 +10,11 @@ public interface BookRepository {
 
     List<Book> findAllPagination(int offset, int limit);
 
+    Book findById(int id);
+
     int save(Book book);
+
+    int update(Book book);
 
     int deleteById(Long id);
 }

@@ -17,17 +17,17 @@ public class GenreRepositoryImpl implements GenreRepository {
 
     @Override
     public List<Genre> findAll() {
-        return jdbcTemplate.query("select * from public.genre", BeanPropertyRowMapper.newInstance(Genre.class));
+        return jdbcTemplate.query("select * from library.genre", BeanPropertyRowMapper.newInstance(Genre.class));
     }
 
     @Override
     public int save(Genre genre) {
-        return jdbcTemplate.update("insert into public.genre(name) values (?)",
+        return jdbcTemplate.update("insert into library.genre(name) values (?)",
                 new Object[] {genre.getName()});
     }
 
     @Override
     public int deleteById(Long id) {
-        return jdbcTemplate.update("delete from public.genre where id=?", id);
+        return jdbcTemplate.update("delete from library.genre where id=?", id);
     }
 }

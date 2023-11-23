@@ -6,6 +6,7 @@ public class Book {
     private String title;
     private String description;
     private long genreId;
+
     private String genreName;
 
     public Book() {
